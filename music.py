@@ -28,22 +28,31 @@ def sine(frequency, sampling_rate, num_samples):
 def generate_wav(fname, sample_rate, data):
 
     wavfile.write(fname, sample_rate, data)
-def plot_frequency(array, sample_rate):
+def plot_frequency(array, new_array, sample_rate):
     
     frq, X = frequency_spectrum(array, sample_rate)
-
-    x_axis = np.arange(0,5000,1)
+    _, X2 = frequency_spectrum(new_array, sample_rate)
 
     plt.subplot(2, 1, 2)
     plt.plot(X, 'b')
+    plt.plot(X2, 'r')
     plt.xlabel('Freq (Hz)')
     plt.ylabel('|X(freq)|')
     plt.tight_layout()
 
     # plt.show()
 
-def plot_time():
-    pass
+def plot_time(data, new_data, sample_rate, amount_of_samples):
+ 
+    plt.subplot(2, 1, 1)
+    time_array = np.arange(0, float(amount_of_samples), 1) / sample_rate
+    plt.plot( time_array, data, linewidth=0.3, alpha=0.7, color='#004bc6')
+    plt.plot( time_array, new_data, linewidth=0.3, alpha=0.7, color='red')
+
+    plt.xlabel('Time (s)')
+
+    plt.ylabel('Amplitude')
+
 
 def show():
 
@@ -59,18 +68,8 @@ def show():
     new_data = simple_filter(data)
    
     # “return evenly spaced values within a given interval”
-
-    time_array = np.arange(0, float(amount_of_samples), 1) / sample_rate
-
-    plt.subplot(2, 1, 1)
-    plt.plot(time_array, data, linewidth=0.3, alpha=0.7, color='#004bc6')
-    plt.plot(time_array, new_data, linewidth=0.3, alpha=0.7, color='red')
-
-    plt.xlabel('Time (s)')
-
-    plt.ylabel('Amplitude')
-
-    plot_frequency(data, sample_rate)
+    plot_time(data, new_data, sample_rate, amount_of_samples)
+    plot_frequency(data, new_data, sample_rate)
 
     wavfile.write('new_' + f, sample_rate, new_data)
     plt.savefig("plot.png")

@@ -3,27 +3,6 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 import sys
 
-
-def play():
-    sample_rate, data = wavfile.read('bicycle_bell.wav')
-    
-    amount_of_samples = len(data)
-
-    length_of_sound = amount_of_samples / sample_rate
-
-    print("Sample rate:", sample_rate)
-
-    print("Amount of samples:", amount_of_samples)
-
-    print("Length of sound:", round(length_of_sound, 2), "seconds")
-
-    print("Data type:", data.dtype)
-    
-    print()
-    for n in data[0:10]:
-        print(bin(n))
-
-
 def show():
     if len(sys.argv) < 2:
         f = 'bicycle_bell.wav'
@@ -52,6 +31,7 @@ def show():
 
     wavfile.write('new_' + f, sample_rate, data)
     plt.show()
+
 if __name__ == "__main__":
     show()
     

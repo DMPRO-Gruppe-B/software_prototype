@@ -49,8 +49,7 @@ def show():
     plt.xlabel('Time (s)')
 
     plt.ylabel('Amplitude')
-    # data = [n * (2**15) for n in scaled_data]
-    print(data[0:10])
+
     wavfile.write('new_' + f, sample_rate, data)
     plt.show()
 if __name__ == "__main__":

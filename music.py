@@ -3,6 +3,7 @@ from numpy import sign, sin, pi
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 import sys
+from visualizer import frequency_spectrum
 
 def treshold_compress(array: np.array, treshold):
     return np.array(s if asb(s) < treshold else sign(s) * treshold for s in array)
@@ -27,8 +28,25 @@ def sine(frequency, sampling_rate, num_samples):
 def generate_wav(fname, sample_rate, data):
 
     wavfile.write(fname, sample_rate, data)
+def plot_frequency(array, sample_rate):
+    
+    frq, X = frequency_spectrum(array, sample_rate)
+
+    x_axis = np.arange(0,5000,1)
+
+    plt.subplot(2, 1, 2)
+    plt.plot(X, 'b')
+    plt.xlabel('Freq (Hz)')
+    plt.ylabel('|X(freq)|')
+    plt.tight_layout()
+
+    # plt.show()
+
+def plot_time():
+    pass
 
 def show():
+
     if len(sys.argv) < 2:
         f = 'bicycle_bell.wav'
     else:
@@ -37,8 +55,6 @@ def show():
 
     amount_of_samples = len(data)
 
-    # convert sound array to floating point values ranging from -1 to 1
-
     # new_data = range_compress(data) 
     new_data = simple_filter(data)
    
@@ -46,12 +62,15 @@ def show():
 
     time_array = np.arange(0, float(amount_of_samples), 1) / sample_rate
 
+    plt.subplot(2, 1, 1)
     plt.plot(time_array, data, linewidth=0.3, alpha=0.7, color='#004bc6')
     plt.plot(time_array, new_data, linewidth=0.3, alpha=0.7, color='red')
 
     plt.xlabel('Time (s)')
 
     plt.ylabel('Amplitude')
+
+    plot_frequency(data, sample_rate)
 
     wavfile.write('new_' + f, sample_rate, new_data)
     plt.savefig("plot.png")

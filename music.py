@@ -1,18 +1,82 @@
 import numpy as np
-from numpy import sign, sin, pi
+from numpy import sign, sin, pi, arange, absolute
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
+from scipy.signal import kaiserord, firwin, lfilter, freqz
 import sys
-from visualizer import frequency_spectrum
+from visualizer import Frequency_spectrum
 
 def treshold_compress(array: np.array, treshold):
-    return np.array(s if asb(s) < treshold else sign(s) * treshold for s in array)
+    return np.array(s if abs(s) < treshold else sign(s) * treshold for s in array)
 
 def range_compress(array, ratio: float):
     return np.array(s * ratio for s in array)
 
 def simple_filter(array, a0 = 0.5, a1 = 0.5):
     return np.array([array[0]] + [s * a0 + s_last * a1 for s, s_last in zip(array[1:], array[:-1])])
+
+#FIR filter using window method 
+def fir_filter(sound, sampling_rate, num_samples):
+    t = arange(num_samples) / sampling_rate
+    #Creating FIR filter and applying to sound
+    nyq_rate = sampling_rate / 2.0                                      #nyquist rate of signal
+    width = 5.0 / nyq_rate                                              #5Hz transition width
+    ripple_db = 60.0                                                    #desired attenuation in the stop band
+    N, beta = kaiserord(ripple_db, width)                               #order and kaiser parameter for FIR filter
+    cutoff_hz  = 10.0                                                   #cutoff frequency
+    taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))       #creating low pass FIR filter
+    filtered_sound = lfilter(taps, 1.0, sound)
+    
+    #Plot FIR filter coefficients
+    plt.figure(1)
+    plt.plot(taps, 'bo-', linewidth=2)
+    plt.title('Filter Coefficients (%d taps)' % N)
+    plt.grid(True)
+
+    #Plot magnitude response of filter
+    plt.figure(2)
+    plt.clf()
+    w, h = freqz(taps, worN=8000)
+    plt.plot((w/pi)*nyq_rate, absolute(h), linewidth=2)
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Gain')
+    plt.title('Frequency Response')
+    plt.ylim(-0.05, 1.05)
+    plt.grid(True)
+
+    #upper inset plot.
+    ax1 = plt.axes([0.42, 0.6, .45, .25])
+    plt.plot((w/pi)*nyq_rate, absolute(h), linewidth=2)
+    plt.xlim(0,8.0)
+    plt.ylim(0.9985, 1.001)
+    plt.grid(True)
+
+    #lower inset plot
+    ax2 = plt.axes([0.42, 0.25, .45, .25])
+    plt.plot((w/pi)*nyq_rate, absolute(h), linewidth=2)
+    plt.xlim(12.0, 20.0)
+    plt.ylim(0.0, 0.0025)
+    plt.grid(True)
+
+    #Plot original and filtered signals
+    # The phase delay of the filtered signal.
+    delay = 0.5 * (N-1) / sampling_rate
+
+    plt.figure(3)
+
+    #plot the original signal.
+    plt.plot(t, sound)
+    # Plot the filtered signal, shifted to compensate for the phase delay.
+    plt.plot(t-delay, filtered_sound, 'r-')
+    # Plot just the "good" part of the filtered signal.  The first N-1
+    # samples are "corrupted" by the initial conditions.
+    plt.plot(t[N-1:]-delay, filtered_sound[N-1:], 'g', linewidth=4)
+
+    plt.xlabel('t')
+    plt.grid(True)
+
+    #plt.show()
+    
 
 def geneate_sine_wave(frequency, sampling_rate, num_samples, amplitude = 2**15, save_file=False):
     sine_wave = np.array([sin(2 * pi * frequency * x/sampling_rate) for x in range(num_samples)])
@@ -23,10 +87,11 @@ def geneate_sine_wave(frequency, sampling_rate, num_samples, amplitude = 2**15, 
 def generate_wav(fname, sample_rate, data):
 
     wavfile.write(fname, sample_rate, data)
+
 def plot_frequency(array, new_array, sample_rate):
     
-    _, X = frequency_spectrum(array, sample_rate)
-    _, X2 = frequency_spectrum(new_array, sample_rate)
+    _, X = Frequency_spectrum(array, sample_rate)
+    _, X2 = Frequency_spectrum(new_array, sample_rate)
 
     plt.subplot(2, 1, 2)
     plt.plot(X, 'b')
@@ -61,6 +126,7 @@ def show():
 
     # new_data = range_compress(data) 
     new_data = simple_filter(data)
+    # new_data = fir_filter(data, sample_rate, amount_of_samples)
    
     # “return evenly spaced values within a given interval”
     plot_time(data, new_data, sample_rate, amount_of_samples)

@@ -5,7 +5,7 @@ from scipy.io import wavfile
 import os
 
 
-def frequency_spectrum(x, sf):
+def Frequency_spectrum(x, sf):
     """
     Derive frequency spectrum of a signal from time domain
     :param x: signal in the time domain
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     plt.xlabel('t')
     plt.ylabel('y')
 
-    frq, X = frequency_spectrum(y, sr)
+    frq, X = Frequency_spectrum(y, sr)
 
     x_axis = np.arange(3000,5000,1)
 

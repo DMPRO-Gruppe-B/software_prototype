@@ -28,6 +28,7 @@ def fir_filter(sound, sampling_rate, num_samples):
     cutoff_hz  = 10.0                                                   #cutoff frequency
     taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))       #creating low pass FIR filter
     filtered_sound = lfilter(taps, 1.0, sound)
+    return filtered_sound
     
     #Plot FIR filter coefficients
     plt.figure(1)
@@ -76,8 +77,8 @@ def fir_filter(sound, sampling_rate, num_samples):
 
     plt.xlabel('t')
     plt.grid(True)
-
-    #plt.show()
+    return filtered_sound
+    plt.show()
     
 
 def geneate_sine_wave(frequency, sampling_rate, num_samples, amplitude = MAX_AMPLITUDE, save_file=False):
@@ -89,7 +90,7 @@ def geneate_sine_wave(frequency, sampling_rate, num_samples, amplitude = MAX_AMP
 def diff(old_data, new_data):
     return np.array([o - n for o, n in zip(old_data, new_data)]) 
 
-def feq_resp(sample_rate, nsamples):
+def freq_resp(sample_rate, nsamples):
     samples = MAX_AMPLITUDE * (2 * np.random.random(size=nsamples) - 1)
     return simple_filter(samples)
     
@@ -102,7 +103,8 @@ def plot_frequency(array, new_array, sample_rate):
     _, X = Frequency_spectrum(array, sample_rate)
     _, X2 = Frequency_spectrum(new_array, sample_rate)
 
-    plt.subplot(2, 1, 2)
+    D = diff(X, X2)
+    plt.subplot(3, 1, 2)
     plt.plot(X, 'b')
     plt.plot(X2, 'r')
     plt.xlabel('Freq (Hz)')
@@ -149,12 +151,13 @@ def show():
     # data = data[-5000:]
     amount_of_samples = len(data)
     
-    data = data / (2. ** 15) # normalize
+    data = data / MAX_AMPLITUDE # normalize
 
     # new_data = range_compress(data) 
-    # new_data = simple_filter(data)
+    new_data = simple_filter(data)
     # new_data = fir_filter(data, sample_rate, amount_of_samples)
-    new_data = feq_resp(sample_rate, amount_of_samples)
+    # new_data = freq_resp(sample_rate, amount_of_samples)
+    # new_data = fir_filter(data, sample_rate, amount_of_samples)
    
     # “return evenly spaced values within a given interval”
     plot_time(data, new_data, sample_rate, amount_of_samples)

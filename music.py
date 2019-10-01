@@ -14,6 +14,20 @@ def treshold_compress(array: np.array, treshold):
 def range_compress(array, ratio: float):
     return np.array(s * ratio for s in array)
 
+def fir(data, coeffs):
+    n = len(coeffs)
+    res = [] 
+    for i in range(n - 1, len(data)):
+        jj = []
+        for j in range(n):
+            jj.append(data[i - j] * coeffs[-(j + 1)])
+        
+        res.append(sum(jj))
+
+    return np.array(res)
+        
+
+
 def resolution_bitcrush(data, resolution = 2):
     res = []
     temp = 0
@@ -169,7 +183,8 @@ def show():
 
     # new_data = range_compress(data) 
     # new_data = simple_filter(data)
-    new_data = resolution_bitcrush(data, resolution=2)
+    new_data = fir(data, [1, 2, 2, 1])
+    # new_data = resolution_bitcrush(data, resolution=2)
     # amount_of_samples, new_data = delay_filter(data, sample_rate * 2)
     # new_data = fir_filter(data, sample_rate, amount_of_samples)
     # new_data = freq_resp(sample_rate, amount_of_samples)

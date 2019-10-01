@@ -18,29 +18,29 @@ object main {
     """.stripMargin
     println(s)
 
-    chisel3.iotesters.Driver.execute(args,() => new LPF()) { c =>
-      new FullLPF(c)
+    chisel3.iotesters.Driver.execute(args,() => new SampleDistorter()) { c =>
+      new SampleDistorterTest(c)
     }
   }
-  class FullLPF(c: LPF) extends PeekPokeTester(c) {
+
+  class SampleDistorterTest(c: SampleDistorter) extends PeekPokeTester(c) {
     println("Reading from file")
     val samplefile = "fileopen.scala"
 
-    val file = new File("./../outputsamples.txt")
-    
-    val pwClear = new PrintWriter(new FileOutputStream(file),false)
+    val inputFile = new File("./../inputsamples.txt")
+    val outputFile = new File("./../outputsamples.txt")
+
+    val pwClear = new PrintWriter(new FileOutputStream(outputFile),false)
     pwClear.write("")
     pwClear.close()
+    val pw = new PrintWriter(new FileOutputStream(outputFile),true)
 
-    val pw = new PrintWriter(new FileOutputStream(file),true)
-
-    for (line <- io.Source.fromFile("/home/michael/Skole/Hosten2019/Datamaskinprosjekt/effect-test/inputsamples.txt").getLines){
+    for (line <- io.Source.fromFile(inputFile).getLines){
       val sample = (line.toInt)
       poke(c.io.dataInA,sample)
       pw.write(peek(c.io.dataOut).toString + "\n")
       step(1)
     }
     pw.close()
-    
   }
 }

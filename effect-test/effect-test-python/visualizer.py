@@ -84,7 +84,7 @@ def show():
     input_sample_file.truncate(0)
 
     [input_sample_file.write(str(line) + "\n") for line in data]
-
+    input_sample_file.close()
     input("Press enter to continue after running the Chisel code")
 
     output_sample_file=open(os.path.dirname(__file__)+ '/../outputsamples.txt',"r")

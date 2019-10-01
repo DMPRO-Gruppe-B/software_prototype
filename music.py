@@ -14,6 +14,20 @@ def treshold_compress(array: np.array, treshold):
 def range_compress(array, ratio: float):
     return np.array(s * ratio for s in array)
 
+def resolution_bitcrush(data, resolution = 2):
+    res = []
+    temp = 0
+    for i in range(len(data)):
+        if i % resolution == 0:
+            temp = data[i]
+        res.append(temp)
+
+    return np.array(res)
+
+def delay_filter(array, delay_samples, a0 = 0.5, a1 = 0.5):
+    data = np.array([s * (a0 + s_last * a1) for s, s_last in zip(array[delay_samples:], array[:-delay_samples])])
+    return len(data), data 
+
 def simple_filter(array, a0 = 0.5, a1 = 0.5):
     return np.array([array[0]] + [s * (a0 + s_last * a1) for s, s_last in zip(array[1:], array[:-1])])
 
@@ -93,7 +107,6 @@ def diff(old_data, new_data):
 def feq_resp(sample_rate, nsamples):
     samples = MAX_AMPLITUDE * (2 * np.random.random(size=nsamples) - 1)
     return simple_filter(samples)
-    
 
 def save_wav(fname, sample_rate, data):
     wavfile.write(fname, sample_rate, data)
@@ -125,9 +138,10 @@ def plot_time(data, new_data, sample_rate, amount_of_samples):
     # print(new_data[0:10])
     # print(d[0:10])
 
-    time_array = np.arange(0, float(amount_of_samples), 1) / sample_rate
+    time_array = np.arange(0, float(len(data)), 1) / sample_rate
+    time_array_new = np.arange(0, float(len(new_data)), 1) / sample_rate
     plt.plot( time_array, data, linewidth=0.3, alpha=0.7, color='blue')
-    plt.plot( time_array, new_data, linewidth=0.3, alpha=0.7, color='red')
+    plt.plot( time_array_new, new_data, linewidth=0.3, alpha=0.7, color='red')
     # plt.plot( time_array, d, linewidth=0.3, alpha=0.7, color='yellow') # show difference
 
     plt.xlabel('Time (s)')
@@ -155,15 +169,18 @@ def show():
 
     # new_data = range_compress(data) 
     # new_data = simple_filter(data)
-    new_data = fir_filter(data, sample_rate, amount_of_samples)
-    # new_data = feq_resp(sample_rate, amount_of_samples)
+    new_data = resolution_bitcrush(data, resolution=2)
+    # amount_of_samples, new_data = delay_filter(data, sample_rate * 2)
+    # new_data = fir_filter(data, sample_rate, amount_of_samples)
+    # new_data = freq_resp(sample_rate, amount_of_samples)
+    # new_data = fir_filter(data, sample_rate, amount_of_samples)
    
     # “return evenly spaced values within a given interval”
     plot_time(data, new_data, sample_rate, amount_of_samples)
     plot_frequency(data, new_data, sample_rate)
 
     wavfile.write('new_' + f, sample_rate, new_data * MAX_AMPLITUDE)
-    plt.savefig(f.split(".")[0] + ".png")
+    plt.savefig(f.split(".")[0] + ".png", dpi='figure')
     plt.show()
 
 if __name__ == "__main__":

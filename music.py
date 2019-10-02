@@ -6,7 +6,7 @@ from scipy.signal import kaiserord, firwin, lfilter, freqz
 import sys
 from visualizer import Frequency_spectrum
 
-MAX_AMPLITUDE = 2**15
+MAX_AMPLITUDE = 2.**15
 
 def treshold_compress(array: np.array, treshold):
     return np.array(s if abs(s) < treshold else sign(s) * treshold for s in array)
@@ -26,7 +26,10 @@ def fir(data, coeffs):
 
     return np.array(res)
         
-
+def bitcrush(data, n_crush_bits = 0): 
+    data = data + MAX_AMPLITUDE
+    mask = 0xffff << n_crush_bits
+    return np.array([(int(d) & mask) for d in data]) - MAX_AMPLITUDE
 
 def resolution_bitcrush(data, resolution = 2):
     res = []
@@ -178,12 +181,17 @@ def show():
     sample_rate, data = wavfile.read(f)
     # data = data[-5000:]
     amount_of_samples = len(data)
-    
-    data = data / (2. ** 15) # normalize
+    tofloat = True 
+    old_data = np.copy(data)
+
+    if (tofloat):
+        data = data / MAX_AMPLITUDE # normalize
 
     # new_data = range_compress(data) 
     # new_data = simple_filter(data)
-    new_data = fir(data, [1, 2, 2, 1])
+    # new_data = fir(data, [1, 2, 2, 1])
+    # new_data = bitcrush(data)
+    new_data = data
     # new_data = resolution_bitcrush(data, resolution=2)
     # amount_of_samples, new_data = delay_filter(data, sample_rate * 2)
     # new_data = fir_filter(data, sample_rate, amount_of_samples)
@@ -191,10 +199,12 @@ def show():
     # new_data = fir_filter(data, sample_rate, amount_of_samples)
    
     # “return evenly spaced values within a given interval”
-    plot_time(data, new_data, sample_rate, amount_of_samples)
-    plot_frequency(data, new_data, sample_rate)
-
-    wavfile.write('new_' + f, sample_rate, new_data * MAX_AMPLITUDE)
+    # plot_time(data, new_data, sample_rate, amount_of_samples)
+    # plot_frequency(data, new_data, sample_rate)
+    if (tofloat):
+        new_data = new_data * MAX_AMPLITUDE
+        
+    wavfile.write('bolle_' + f, sample_rate, new_data.astype("int16"))
     plt.savefig(f.split(".")[0] + ".png", dpi='figure')
     plt.show()
 

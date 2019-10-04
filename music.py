@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.signal import kaiserord, firwin, lfilter, freqz
 import sys
+import bitstring as bs
 from visualizer import Frequency_spectrum
 
 MAX_AMPLITUDE = 2.**15
@@ -25,6 +26,15 @@ def fir(data, coeffs):
         res.append(sum(jj))
 
     return np.array(res)
+
+def ba(n):
+    if isinstance(n, str):
+        return bs.BitArray(bin=n)
+    else:
+        return bs.BitArray(f"int:16={n}")
+
+def bitcrush_bs(data, n_crush_bits = 4):
+    return np.array([ba(ba(n).bin[0:-n_crush_bits] + '0' * n_crush_bits).int for n in data])
         
 def bitcrush(data, n_crush_bits = 4): 
     data = data + MAX_AMPLITUDE
@@ -190,7 +200,7 @@ def show():
     # new_data = range_compress(data) 
     # new_data = simple_filter(data)
     # new_data = fir(data, [1, 2, 2, 1])
-    new_data = bitcrush(data, n_crush_bits=8)
+    new_data = bitcrush_bs(data)
     # new_data = data
     # new_data = resolution_bitcrush(data, resolution=2)
     # amount_of_samples, new_data = delay_filter(data, sample_rate * 2)

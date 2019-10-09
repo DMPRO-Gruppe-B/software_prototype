@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import numpy as np
 from numpy import sign, sin, pi, arange, absolute
 import matplotlib.pyplot as plt
@@ -6,6 +8,7 @@ from scipy.signal import kaiserord, firwin, lfilter, freqz
 import sys
 import bitstring as bs
 from visualizer import Frequency_spectrum
+import argparse
 
 MAX_AMPLITUDE = 2.**15
 
@@ -175,52 +178,67 @@ def plot_time(data, new_data, sample_rate, amount_of_samples):
 
     plt.ylabel('Amplitude')
 
+def sound_from_file(filename: str):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    return int(lines[0]), np.array([int(s) for s in lines[1:]])
 
 def show():
-    a0 = 0.5
-    a1 = 0.5
-    if len(sys.argv) < 2:
-        f = 'bicycle_bell.wav'
-    else:
-        f = sys.argv[1]
-        if len(sys.argv) >= 4:
-            a0 = float(sys.argv[2])
-            a1 = float(sys.argv[3])
-            
+    parser = argparse.ArgumentParser()
+    parser.add_argument("infile", help="Input file")
+    parser.add_argument("-o", "--outfile", help="Output file sound")
+    parser.add_argument("-f", "--savefig", help="Output file matplotlib fig")
+    parser.add_argument("-t", "--savetxt", help="Output txt file")
+    parser.add_argument("-m", "--show", action='store_true', help="Show matplotlib")
+    args = parser.parse_args()
+    args = vars(args)
+    # f = sys.argv[1] if len(sys.argv) > 1 else 'bicycle_bell.wav'
+    f = args["infile"]
+    if f.endswith(".txt"):
+        sample_rate, data = sound_from_file(f)
+    elif f.endswith(".wav"):
+        sample_rate, data = wavfile.read(f)
+           
     
-    sample_rate, data = wavfile.read(f)
     # data = data[-5000:]
     amount_of_samples = len(data)
     tofloat = False 
-    old_data = np.copy(data)
 
     if (tofloat):
         data = data / MAX_AMPLITUDE # normalize
-
+     
+            
     # new_data = range_compress(data) 
     # new_data = simple_filter(data)
     # new_data = fir(data, [1, 2, 2, 1])
     new_data = bitcrush_bs(data)
-    # new_data = data
     # new_data = resolution_bitcrush(data, resolution=2)
     # amount_of_samples, new_data = delay_filter(data, sample_rate * 2)
     # new_data = fir_filter(data, sample_rate, amount_of_samples)
     # new_data = freq_resp(sample_rate, amount_of_samples)
     # new_data = fir_filter(data, sample_rate, amount_of_samples)
    
-    # “return evenly spaced values within a given interval”
-    plot_time(data, new_data, sample_rate, amount_of_samples)
-    plot_frequency(data, new_data, sample_rate)
+    if args["show"]:
+        # “return evenly spaced values within a given interval”
+        plot_time(data, new_data, sample_rate, amount_of_samples)
+        plot_frequency(data, new_data, sample_rate)
+
+        plt.show()
+
+    if args["savefig"]:
+        plt.savefig(args["savefig"], dpi='figure')
+
     if (tofloat):
         new_data = new_data * MAX_AMPLITUDE
-    with open("sound.txt", "w") as out:
-        for d in new_data:
-            out.write(str(int(d)) + "\n")
 
+    if args["savetxt"]:
+        with open(args["savetxt"], "w") as out:
+            out.write(f"{sample_rate}\n")
+            for d in new_data:
+                out.write(f"{d}\n")
 
-    wavfile.write('bolle_' + f, sample_rate, new_data.astype("int16"))
-    plt.savefig(f.split(".")[0] + ".png", dpi='figure')
-    plt.show()
+    if args["outfile"]:
+        wavfile.write(args["outfile"], sample_rate, new_data.astype("int16"))
 
 if __name__ == "__main__":
     show()

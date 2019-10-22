@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.signal import kaiserord, firwin, lfilter, freqz
 import sys
-import bitstring as bs
+#import bitstring as bs
 from visualizer import Frequency_spectrum
 import argparse
 
@@ -181,42 +181,36 @@ def plot_time(data, new_data, sample_rate, amount_of_samples):
 def sound_from_file(filename: str):
     with open(filename, "r") as f:
         lines = f.readlines()
-    return int(lines[0]), np.array([int(s) for s in lines[1:]])
+    return np.array([int(s) for s in lines])
 
-def show():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("infile", help="Input file")
-    parser.add_argument("-o", "--outfile", help="Output file sound")
-    parser.add_argument("-f", "--savefig", help="Output file matplotlib fig")
-    parser.add_argument("-t", "--savetxt", help="Output txt file")
-    parser.add_argument("-m", "--show", action='store_true', help="Show matplotlib")
-    args = parser.parse_args()
-    args = vars(args)
-    # f = sys.argv[1] if len(sys.argv) > 1 else 'bicycle_bell.wav'
+def sourceData(args):
     f = args["infile"]
     if f.endswith(".txt"):
-        sample_rate, data = sound_from_file(f)
+        data = sound_from_file(f)
     elif f.endswith(".wav"):
         sample_rate, data = wavfile.read(f)
            
     
-    # data = data[-5000:]
     amount_of_samples = len(data)
-    tofloat = False 
 
-    if (tofloat):
-        data = data / MAX_AMPLITUDE # normalize
-     
+    if args["savetxt"]:
+        with open(args["savetxt"], "w") as out:
+            for d in data:
+                out.write(f"{d}\n")
+
+            for pad in range (10000):
+                out.write("0\n")
+
+def transformedData(args):
+    f = args["infile"]
+    if f.endswith(".wav"):
+        sample_rate, data = wavfile.read(f)
+    
+    amount_of_samples = len(data)
             
-    # new_data = range_compress(data) 
-    # new_data = simple_filter(data)
-    # new_data = fir(data, [1, 2, 2, 1])
-    new_data = bitcrush_bs(data)
-    # new_data = resolution_bitcrush(data, resolution=2)
-    # amount_of_samples, new_data = delay_filter(data, sample_rate * 2)
-    # new_data = fir_filter(data, sample_rate, amount_of_samples)
-    # new_data = freq_resp(sample_rate, amount_of_samples)
-    # new_data = fir_filter(data, sample_rate, amount_of_samples)
+    if(args["newfile"]):
+        new_data = sound_from_file(args["newfile"])
+        print(new_data)
    
     if args["show"]:
         # “return evenly spaced values within a given interval”
@@ -228,17 +222,23 @@ def show():
     if args["savefig"]:
         plt.savefig(args["savefig"], dpi='figure')
 
-    if (tofloat):
-        new_data = new_data * MAX_AMPLITUDE
-
-    if args["savetxt"]:
-        with open(args["savetxt"], "w") as out:
-            out.write(f"{sample_rate}\n")
-            for d in new_data:
-                out.write(f"{d}\n")
-
     if args["outfile"]:
         wavfile.write(args["outfile"], sample_rate, new_data.astype("int16"))
 
 if __name__ == "__main__":
-    show()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--part", help="Choose part to process")
+    parser.add_argument("-i", "--infile", help="Input file")
+    parser.add_argument("-n","--newfile", help="new file from Scala")
+    parser.add_argument("-o", "--outfile", help="Output file sound")
+    parser.add_argument("-f", "--savefig", help="Output file matplotlib fig")
+    parser.add_argument("-m", "--show", action='store_true', help="Show matplotlib")
+    parser.add_argument("-t", "--savetxt", help="Output txt file")
+
+    args = parser.parse_args()
+    args = vars(args)
+
+    if(args["part"] == "1"):
+        sourceData(args)
+    elif(args["part"] == "2"):
+        transformedData(args)

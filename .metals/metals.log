@@ -1,0 +1,16 @@
+INFO  time: initialize in 0.31s
+WARN  no build tool detected in workspace '/home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+INFO  shutting down Metals
+INFO  time: initialize in 0.27s
+WARN  no build tool detected in workspace '/home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/test/scala/gcd/GCDMain.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/test/scala/gcd/GCDUnitTest.scala
+INFO  no build target: using presentation compiler with only scala-library
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/test/scala/gcd/GCDMain.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/main/scala/main.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/main/scala/SampleDistorter.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/main/scala/main.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/build.sbt
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/main/scala/main.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/main/scala/SampleDistorter.scala
+WARN  no build target: /home/michael/Skole/Hosten2019/Datamaskinprosjekt/git-gruppe-b/software_prototype/effect-test/effect-test-chisel/src/main/scala/main.scala

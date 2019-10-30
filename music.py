@@ -182,14 +182,17 @@ def sound_from_file(filename: str):
     with open(filename, "r") as f:
         lines = f.readlines()
     return np.array([int(s) for s in lines])
-
+def removeStereo(data):
+    if len(data.shape) > 1:
+        return data[:,0]
+    return data
 def sourceData(args):
     f = args["infile"]
     if f.endswith(".txt"):
         data = sound_from_file(f)
     elif f.endswith(".wav"):
         sample_rate, dataTemp = wavfile.read(f)
-        data = dataTemp[:,0] # remove stereo chanels
+        data = removeStereo(dataTemp)
     
     amount_of_samples = len(data)
 
@@ -205,7 +208,7 @@ def transformedData(args):
     f = args["infile"]
     if f.endswith(".wav"):
         sample_rate, dataTemp = wavfile.read(f)
-        data = dataTemp[:,0] # remove stereo chanels
+        data = removeStereo(dataTemp)
 
     
     amount_of_samples = len(data)

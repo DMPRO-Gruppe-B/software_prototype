@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.signal import kaiserord, firwin, lfilter, freqz
 import sys
-#import bitstring as bs
+import bitstring as bs
 from visualizer import Frequency_spectrum
 import argparse
 
@@ -188,8 +188,8 @@ def sourceData(args):
     if f.endswith(".txt"):
         data = sound_from_file(f)
     elif f.endswith(".wav"):
-        sample_rate, data = wavfile.read(f)
-           
+        sample_rate, dataTemp = wavfile.read(f)
+        data = dataTemp[:,0] # remove stereo chanels
     
     amount_of_samples = len(data)
 
@@ -204,7 +204,9 @@ def sourceData(args):
 def transformedData(args):
     f = args["infile"]
     if f.endswith(".wav"):
-        sample_rate, data = wavfile.read(f)
+        sample_rate, dataTemp = wavfile.read(f)
+        data = dataTemp[:,0] # remove stereo chanels
+
     
     amount_of_samples = len(data)
             
